@@ -1,0 +1,33 @@
+#Chapter 5 homework
+Sony Nghiem
+
+Problem 6
+```{r warning=FALSE, message=FALSE}
+library("fGarch")
+setwd("D:/Sony/FinEcon/datasets")
+dat = read.csv("GasFlowData.csv", header=T)
+sstdFit(dat$Flow1)
+sstdFit(dat$Flow2)
+sstdFit(dat$Flow3)
+
+```
+
+Problem 9
+```{r warning=FALSE}
+library(evir)
+library(fGarch)
+data(bmw)
+start_bmw = c(mean(bmw),sd(bmw),4)
+loglik_bmw = function(theta)
+{
+-sum(log(dstd(bmw,mean=theta[1],sd=theta[2],nu=theta[3])))
+}
+mle_bmw = optim(start_bmw, loglik_bmw, hessian=T)
+FishInfo_bmw = solve(mle_bmw$hessian)
+library(MASS)
+fitdistr(bmw, 't')
+```
+a. The function dstd calculates a pdf of t-distributed bmw, and it is from fGarch pakacge.
+b. The function solve gives us the inverse matrix of mle_bmw$hessian.
+c. The estimated degree of freedom is 2.9968678704
+d. The standard error of nu is 0.1372025055
