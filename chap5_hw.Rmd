@@ -25,7 +25,13 @@ loglik_bmw = function(theta)
 mle_bmw = optim(start_bmw, loglik_bmw, hessian=T)
 FishInfo_bmw = solve(mle_bmw$hessian)
 library(MASS)
+plot(density(bmw))
+# to fit the classical t-distribution 
 fitdistr(bmw, 't')
+#to fit a F-S skewed t-distribution
+sstdFit(bmw)
+# to fit a generalized error distribution
+gedFit(bmw)
 ```
 a. The function dstd calculates a pdf of t-distributed bmw, and it is from fGarch pakacge.
 b. The function solve gives us the inverse matrix of mle_bmw$hessian.
