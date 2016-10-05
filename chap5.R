@@ -98,4 +98,42 @@ fit.GED$objective
 #5.20.2 DAX returns
 ?EuStockMarkets
 head(EuStockMarkets)
-EuStockMarkets
+data("EuStockMarkets")
+?diff
+Y = diff(log(EuStockMarkets[,1])) # DAX
+
+##### std #####
+# dstd std density function
+loglik_std = function(x) {
+  f = -sum(log(dstd(Y, x[1], x[2], x[3])))
+  f}
+
+start=c(mean(Y),sd(Y),4)
+fit_std = optim(start,loglik_std, method="L-BFGS-B",
+                lower=c(-.1,.001,2.1),
+                upper=c(.1,1,20))
+# using bounds (lower, upper) helps avoid negative variance parameters
+
+fit_std
+print(c("MLE =",round(fit_std$par,digits=5)))
+m_logL_std = fit_std$value # minus the log-likelihood
+AIC_std = 2*m_logL_std+2*length(fit_std$par)
+AIC_std
+
+# Problem 7: skew t-distribution
+loglik_sstd = function(x) {
+  f = -sum(log(dsstd(Y, x[1], x[2], x[3],x[4])))
+  f}
+
+start=c(mean(Y),sd(Y),4,1.5)
+fit_sstd = optim(start,loglik_sstd, method="L-BFGS-B",
+                lower=c(-.1,.001,2.1),
+                upper=c(.1,1,20))
+
+fit_sstd
+print(c("MLE =",round(fit_sstd$par,digits=5)))
+m_logL_sstd = fit_sstd$value # minus the log-likelihood
+AIC_sstd = 2*m_logL_sstd+2*length(fit_sstd$par)
+AIC_sstd
+
+# obiously the t-distribution is better (AIC, the smaller the better)
