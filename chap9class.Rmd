@@ -1,0 +1,36 @@
+---
+title: "chapter 9 In-Class"
+output: html_notebook
+---
+
+Chapter 9 - Time series
+
+```{r}
+library("Ecdat")
+library("fGarch")
+library("evir")
+library("forecast")
+data(CRSPday, package="Ecdat")
+data(bmw)
+summary(bmw)
+length(bmw)
+```
+```{r}
+plot(bmw)
+acf(bmw)
+```
+
+The data seems to be stationary in the plot diagram. The autocorrelation function plot shows a well-behaved data without significant autocorrelation (here all changes lie within the dotted lines).
+```{r}
+Box.test(x=bmw, lag=5, type="Ljung-Box")
+```
+The test gives a very small p-value, so I could reject the null hypothesis that the data is indipendenly distributed. There is serial correlation within the data.
+
+So now 
+
+```{r}
+fitAR1 = arima(bmw, order = c(1,0,0))
+?acf
+```
+
+
