@@ -55,18 +55,45 @@ plot(inflation)
 # it doesn't seem stationary
 acf(inflation)
 # The ACF decays to zero slowly, showing that this is a sign of either nonstationarity or possibly of stationarity with long-memory dependence.
-fitAR1= arima(inflation, order=c(1,0,1))
 ```
 ```{r}
+fitAR1= arima(inflation, order=c(1,0,1))
 acf(fitAR1$resid)
 Box.test(fitAR1$resid, lag=5, type="Ljung-Box", fitdf=1)
 ```
 Low p-value show a significant autocorrelation within the past 4 lags.
 ```{r}
 library(timeSeries)
+df_inflation = diff(inflation)
+?diff
+acf(df_inflation) # quicky decaying to zero, quite stationary I assume
+```
+```{r}
+fitART=arima(df_inflation, order=c(1,0,0))
+fitAR1
+acf(fitAR1$resid)
+Box.test(fitAR1$residuals, lag=5, type="Ljung-Box", fitdf=1)
+# there is some autocorrelation in the residuals for that small p-value as we can reject the null hypothesis. In other words, the fitting AR(1) for df_inflation is not correct.
+```
+```{r}
+fit=auto.arima(df_inflation,max.p=20,max.q=0,max.d=0,max.P=0,max.D=0,max.Q=0,ic="aic")
+acf(fit$resid)
+```
+
+
+
+```{r}
+?auto.arima
+fitARMA=auto.arima(inflation,max.p=5,max.q=5,max.d=0,max.P=0,max.Q=0,max.D=0,ic="aic") 
+fitARMA
 
 ```
 
+Now we try to find root for 1-ax-bx^2 to see if the process is stationary. Note that if there exists a non-unit root, the process is stationary.
+
+```{r}
+
+```
 
 
 
