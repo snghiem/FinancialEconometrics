@@ -20,7 +20,7 @@ plot(bmw)
 acf(bmw)
 ```
 
-The data seems to be stationary in the plot diagram. The autocorrelation function plot shows a well-behaved data without significant autocorrelation (here all changes lie within the dotted lines).
+The data seems to be stationary in the plot diagram. The autocorrelation function plot shows a well-behaved AR(1) or possibly AR(2) (here all changes lie within the dotted lines).
 ```{r}
 Box.test(x=bmw, lag=5, type="Ljung-Box")
 ```
@@ -29,8 +29,57 @@ The test gives a very small p-value, so I could reject the null hypothesis that 
 So now 
 
 ```{r}
-fitAR1 = arima(bmw, order = c(1,0,0))
-?acf
+fitAR1 = arima(bmw, order = c(1,0,0)) 
+# here I fit AR(1)
+fitAR1
 ```
+
+```{r}
+acf(fitAR1$resid)
+plot(fitAR1$resid)
+Box.test(fitAR1$resid,lag=5,type="Ljung-Box",fitdf=1)
+
+```
+ACF graph goes quickly to zero, it should indicate stationarity. The Box test has a large p-value, which leads to fail to reject the null hypothesis that the residulals are uncorrelated, at least small lags. So, AR(1) provides a quite adequate fit here. Notice that we use AR(1)'s residuals to test to see if there is any autocorrelation left.
+
+
+```{r}
+data(Mishkin)
+summary(Mishkin)
+?Mishkin
+```
+The first one is one-month inflation rate (in percent, annual rate).
+```{r}
+inflation = Mishkin[,1]
+plot(inflation)
+# it doesn't seem stationary
+acf(inflation)
+# The ACF decays to zero slowly, showing that this is a sign of either nonstationarity or possibly of stationarity with long-memory dependence.
+fitAR1= arima(inflation, order=c(1,0,1))
+```
+```{r}
+acf(fitAR1$resid)
+Box.test(fitAR1$resid, lag=5, type="Ljung-Box", fitdf=1)
+```
+Low p-value show a significant autocorrelation within the past 4 lags.
+```{r}
+library(timeSeries)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
