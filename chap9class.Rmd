@@ -62,6 +62,7 @@ acf(fitAR1$resid)
 Box.test(fitAR1$resid, lag=5, type="Ljung-Box", fitdf=1)
 ```
 Low p-value show a significant autocorrelation within the past 4 lags.
+
 ```{r}
 library(timeSeries)
 df_inflation = diff(inflation)
@@ -73,30 +74,65 @@ fitART=arima(df_inflation, order=c(1,0,0))
 fitAR1
 acf(fitAR1$resid)
 Box.test(fitAR1$residuals, lag=5, type="Ljung-Box", fitdf=1)
-# there is some autocorrelation in the residuals for that small p-value as we can reject the null hypothesis. In other words, the fitting AR(1) for df_inflation is not correct.
+# there is some autocorrelation in the residuals for that small p-value as we can reject the null hypothesis. In other words, the fitting AR(1) for df_inflation is not perfect.
 ```
+
+So now we are fitting AR(p) process to df_inflation. With auto.arima, R could find the optimal p, here max.p = 20
 ```{r}
 fit=auto.arima(df_inflation,max.p=20,max.q=0,max.d=0,max.P=0,max.D=0,max.Q=0,ic="aic")
+fit
 acf(fit$resid)
+Box.test(fit$residuals, lag=5, type="Ljung-Box", fitdf=1)
 ```
+This fit seems to work so well that I cannot reject the non-autocorrelation test within the residuals. So df_inflation has AR(8) process.
 
+Next, we will fit MA (moving average process)
+```{r}
+fitMA=arima(df_inflation, order = c(0,0,3))
+fitMA
+acf(fitMA$residuals)
+Box.test(fitMA$residuals, lag=5, type="Ljung-Box", fitdf=1)
+```
+Yup, the MA(3) fits well.
 
+Now, we test with ARMA(p,q) fitting
 
 ```{r}
-?auto.arima
 fitARMA=auto.arima(inflation,max.p=5,max.q=5,max.d=0,max.P=0,max.Q=0,max.D=0,ic="aic") 
 fitARMA
 
 ```
 
-Now we try to find root for 1-ax-bx^2 to see if the process is stationary. Note that if there exists a non-unit root, the process is stationary.
+From above, we have 1.2074>1, we might want to test for stationary process. Now we try to find root for 1-ax-bx^2 to see if the process is stationary. Note that if there exists a non-unit root, the process is stationary. 
 
 ```{r}
-
+polyroot(c(1,-1.2074, 0.2237))
 ```
 
+Here we have two non-unit roots; thus, the process is stationary. We also have different tests for stationary process such as followings:
+```{r}
+library("tseries")
+adf.test(inflation)
+pp.test(inflation)
+kpss.test(inflation)
+```
+Just stationary like we stated.
 
+Now we fit ARIMA process to the inflation data
+```{r}
+fitARIMA=auto.arima(inflation,max.P=0,max.Q=0,max.D=0,ic="aic")
+fitARIMA
+predict(fitARIMA,n.ahead=10)
+```
+This process is parsimonious since we only need 3 parameters, reducing the problem of overfitting the model. We also predict the next 10 months based on this ARIMA(1,1,1) process. Notice that the predicted value is increasing with the also increasing standard deviation.
 
+For this last part, we fit the inflation data with sample partial autocorrelation function.
+```{r}
+pacf(bmw)
+pacf(df_inflation)
+```
+
+The PACF is useful to identify the order of the AR process. The bmw log returns can be modeled as AR(1), while the df_inflation should try MA process instead, which is consistent with the analysis above.
 
 
 
