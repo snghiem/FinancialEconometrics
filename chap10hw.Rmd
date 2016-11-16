@@ -1,0 +1,29 @@
+---
+title: "Chapter 10"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+```{r}
+library(Ecdat)
+library(forecast)
+data(IncomeUK)
+income = IncomeUK[,1]
+summary(income)
+plot(income)
+```
+
+```{r}
+fitAutoArima = auto.arima(income, ic="bic")
+fitAutoArima
+```
+So the fitted model here is ARIMA(0,1,0).
+
+```{r}
+acf(fitAutoArima$residuals)
+```
+```{r}
+Box.test(fitAutoArima$residuals,lag=1,type="Ljung-Box")
+```
+I could not reject the null hypothesis due to the low p-value.Thus, there might not be any correlation in the residuals.

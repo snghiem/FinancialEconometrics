@@ -1,6 +1,8 @@
 ---
 title: "chapter 9 In-Class"
-output: html_notebook
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 
 Chapter 9 - Time series
