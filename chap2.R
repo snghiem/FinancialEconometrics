@@ -1,5 +1,5 @@
 setwd("D:/sony/FinEcon")
-dat = read.csv("datasets/Stock_bond.csv", header=TRUE)
+dat = read.csv("datasets/monthly-returns-for-att-jan-1961.csv", header=TRUE)
 dim(dat)
 head(dat)
 names(dat)

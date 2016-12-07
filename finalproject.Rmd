@@ -1,0 +1,61 @@
+---
+title: "Final Project"
+author: "Sony Nghiem"
+date: "December 2, 2016"
+output: pdf_document
+---
+Both datasets come from UCI Machine Learning Repository
+https://archive.ics.uci.edu/ml/datasets/Dow+Jones+Index
+
+```{r }
+dat = read.csv("datasets/dow_jones_index.data", header=TRUE)
+summary(dat)
+```
+The first dataset is dat$open, which reflects the price of the stock at the beginning of the week.
+```{r}
+open = dat$open
+plot(open)
+acf(open) 
+Box.test(x=open, lag=13, type="Ljung-Box")
+```
+Due to the small p-value, I could reject that the data is indipendenly distributed. In other words, there is a serial correlation of <=13 lags.
+
+```{r}
+fitAR1 = arima(open, order = c(1,0,0)) 
+fitAR1
+```
+Here I got AR(1)
+```{r}
+acf(fitAR1$residuals)
+Box.test(fitAR1$resid,lag=4,type="Ljung-Box",fitdf=1)
+```
+Now I decide to try auto arima to fit the data automatically with max p and q.
+```{r}
+fit1=auto.arima(open,max.p=20,max.q=0,max.d=0,max.P=0,max.D=0,max.Q=0,ic="aic")
+fit1
+acf(fit1$residuals)
+Box.test(fit1$resid,lag=4,type="Ljung-Box",fitdf=1)
+```
+There is a bit improvement. So I got ARIMA(2,0,0) for this dataset.
+
+For the second dataset from the Dow Jones, I decide to chose volume.
+```{r}
+volume=log(dat$volume)
+plot(volume)
+acf(volume)
+fit2 = auto.arima(volume,max.p=20,max.q=0,max.d=0,max.P=0,max.D=0,max.Q=0,ic="aic")
+fit2
+```
+Here we have ARIMA(2,0,0) also.
+```{r}
+Box.test(fit2$residuals,lag=10,type="Ljung-Box",fitdf=1)
+```
+I am going to try GARCH model.
+```{r}
+library(fGarch)
+fit2=garchFit(formula=~arma(2,0)+garch(1,1),data=volume)
+resid = residuals(fit2)
+acf(resid)
+Box.test(resid,lag=10,type="Ljung-Box",fitdf=1)
+```
+There is no much improvement in p-value I guess. I will rest it here and move on to the next part is fitting the multivariate parametric to them jointly.
